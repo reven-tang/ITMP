@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %}
+<div class="ui modal">
+  <div class="header">
+    新增资源
+  </div>
+  <div class="ui text container" style="margin: 20px;">
+    <div class="ui top attached tabular menu">
+      <a class="active item" data-tab="first">设备信息</a>
+      <a class="item" data-tab="second">软件信息</a>
+      <a class="item" data-tab="third">业务流关系</a>
+      <a class="item" data-tab="fourth">项目/应用</a>
+    </div>
+    <div class="ui bottom attached active tab segment" data-tab="first">
+      <form method="post" id='devform'>
+        {% csrf_token %}
+        <div class="ui form">
+            {{ devform.as_p }}
+        </div>
+<!--         <div class="ui error message"></div> -->
+        <div class="ui right aligned container" style="padding: 10px;">
+          <button class="ui button" type="button" onclick="javascript:history.back();">
+            返回
+          </button>
+          <button class="ui secondary button" id="devsubmit" type="submit">
+            提交
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="ui bottom attached tab segment" data-tab="second">
+      <form method="post" id='softform'>
+        {% csrf_token %}
+        <div class="ui form">
+            {{ softform.as_p }}
+        </div>
+        <!-- <div class="ui error message"></div> -->
+        <div class="ui right aligned container" style="padding: 10px;">
+          <button class="ui button" type="button" onclick="javascript:history.back();">
+            返回
+          </button>
+          <button class="ui secondary button" id="softsubmit" type="submit">
+            提交
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="ui bottom attached tab segment" data-tab="third">
+      <form method="post" id='relform'>
+        {% csrf_token %}
+        <div class="ui form">
+            {{ relform.as_p }}
+        </div>
+        <!-- <div class="ui error message"></div> -->
+        <div class="ui right aligned container" style="padding: 10px;">
+          <button class="ui button" type="button" onclick="javascript:history.back();">
+            返回
+          </button>
+          <button class="ui secondary button" id="relsubmit" type="submit">
+            提交
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="ui bottom attached tab segment" data-tab="fourth">
+      <form method="post" id='projform'>
+        {% csrf_token %}
+        <div class="ui form">
+            {{ projform.as_p }}
+        </div>
+        <!-- <div class="ui error message"></div> -->
+        <div class="ui right aligned container" style="padding: 10px;">
+          <button class="ui button" type="button" onclick="javascript:history.back();">
+            返回
+          </button>
+          <button class="ui secondary button" id="projsubmit" type="submit">
+            提交
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock main %}
+
+{% block custom_script %} 
+<script type="text/javascript">
+  $('.menu .item')
+    .tab()
+  ;
+
+  $('.ui.modal')
+    .modal({
+      blurring: true
+    })
+    .modal('show')
+  ;
+</script>
+{% endblock custom_script %}

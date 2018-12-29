@@ -1,0 +1,32 @@
+- hosts: all
+  remote_user: root
+  vars:
+  - packet: jdk-7u71-linux-x64.rpm
+  tasks:
+  - name: java version
+    shell: which java |grep 1.7
+    register: result
+    ignore_errors: yes
+  - name: create dir
+    file: path=/usr/local/script state=directory
+    when: result|failed
+  - name: copy jdk packet to target
+    copy:
+      src: /app/packet/{{ packet }}
+      dest: /usr/local/script/{{ packet }}
+      force: no
+      when: result|failed
+  - name: install jdk
+    shell: rpm -ivh /usr/local/script/{{ packet }}
+    when: result|failed
+  - name: set env
+    shell: /bin/echo {{ item }} >> /etc/profile ; source /etc/profile
+    with_items:
+      - \#\#\#JDK\.\.\.
+      - export JAVA_HOME=/usr/java/jdk1.7.0_71
+      - export CLASSPATH=\$JAVA_HOME/lib:\$CLASSPATH
+      - export PATH=\$JAVA_HOME/bin:\$PATH
+    when: result|failed
+  - name: source env
+    shell: source /etc/profile
+    when: result|failed

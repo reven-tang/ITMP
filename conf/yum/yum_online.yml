@@ -1,0 +1,19 @@
+- hosts: all
+  tasks:
+  - name: yum backup
+    shell: mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+    when: ansible_distribution == "CentOS" and (ansible_distribution_major_version == "6" or ansible_distribution_major_version == "7")
+  - name: wget epel6
+    shell: wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm && rpm -ivh epel-release-latest-6.noarch.rpm
+    when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  - name: wget epel7
+    shell: wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && rpm -ivh epel-release-latest-7.noarch.rpm
+    when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+  - name: yum conf 6
+    shell: wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-6.repo
+    when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  - name: yum conf 7
+    shell: wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+    when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+  - name: clean cache
+    shell: yum clean all

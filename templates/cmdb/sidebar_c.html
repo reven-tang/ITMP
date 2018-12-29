@@ -1,0 +1,69 @@
+<div class="item" style="color: #f6f6f6;">
+    <div class="header">项目名称</div>
+    <div class="menu">
+        <div class="ui inverted accordion item" style="color: #f6f6f6;">
+            {% for item in projset %}
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    <a href="topchart.html?pid={{ item.projname }}">{{ item.projname }}</a>
+                </div>
+                <div class="content">
+                    {% for appitem in appset %}
+                        {% if appitem.projname == item.projname %}
+                            <a class="item" href="topchart.html?aid={{ appitem.appsystem }}">{{ appitem.appsystem }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="item">
+    <div class="header">统计数据</div>
+</div>
+
+<!-- 统计信息 -->
+<div class="ui inverted small statistics">
+    <div class="blue inverted statistic">
+        <div class="value">
+            {{ win_statistics }}
+        </div>
+        <div class="label">
+            WinServer
+        </div>
+    </div>
+    <div class="yellow inverted statistic">
+        <div class="value">
+            {{ unix_statistics }}
+        </div>
+        <div class="label">
+            UnixServer
+        </div>
+    </div>
+    <div class="olive inverted statistic">
+        <div class="value">
+            {{ app_statistics }}
+        </div>
+        <div class="label">
+           APP
+        </div>
+    </div>
+    <div class="grey inverted statistic">
+        <div class="value">
+            {{ soft_statistics }}
+        </div>
+        <div class="label">
+            SoftWare
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('.ui.accordion')
+      .accordion({
+        selector: {
+          trigger: '.title .icon'
+        }
+      })
+    ;
+</script>

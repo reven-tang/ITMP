@@ -1,0 +1,88 @@
+{% load staticfiles %}
+{% load proj_tags %}
+<div class="item">
+    <br />
+    <div class="header"><h5>项目 / 系统</h5></div>
+    <div class="menu">
+<!--         {% for item in projset %}
+            <a class="item" href="tables.html?pid={{ item.projname }}">{{ item.projname }}</a>
+        {% endfor %} -->
+<!--     </div> -->
+        <div class="ui inverted accordion item">
+            {% get_projs as projs_list %}
+            {% for proj in projs_list %}
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    <a href="tables.html?pid={{ proj.projname }}">{{ proj.projname }}</a>
+                </div>
+                <div class="content">
+                    {% get_apps as apps_list %}
+                    {% for apps in apps_list %}
+                        {% if apps.projname == proj.projname %}
+                            <a class="item" href="tables.html?aid={{ apps.appsystem }}">{{ apps.appsystem }}</a>
+                        {% endif %}
+                    {% empty %}
+                    暂无应用！
+                    {% endfor %}
+                </div>
+            {% empty %}
+            暂无项目！
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="item">
+    <br />
+    <div class="header"><h5>统计数据</h5></div>
+
+    <!-- 统计信息 -->
+    <div class="ui inverted small statistics">
+        <div class="blue inverted statistic">
+            <div class="value">
+                {% get_win_statistics as win_statistics %}
+                {{ win_statistics }}
+            </div>
+            <div class="label">
+                WinServer
+            </div>
+        </div>
+        <div class="yellow inverted statistic">
+            <div class="value">
+                {% get_unix_statistics as unix_statistics %}
+                {{ unix_statistics }}
+            </div>
+            <div class="label">
+                UnixServer
+            </div>
+        </div>
+        <div class="olive inverted statistic">
+            <div class="value">
+                {% get_app_statistics as app_statistics %}
+                {{ app_statistics }}
+            </div>
+            <div class="label">
+               APP
+            </div>
+        </div>
+        <div class="grey inverted statistic">
+            <div class="value">
+                {% get_soft_statistics as soft_statistics %}
+                {{ soft_statistics }}
+            </div>
+            <div class="label">
+                SoftWare
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('.ui.accordion')
+      .accordion({
+        selector: {
+          trigger: '.title .icon'
+        }
+      })
+    ;
+</script>

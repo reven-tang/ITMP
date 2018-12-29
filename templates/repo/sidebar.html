@@ -1,0 +1,55 @@
+{% load staticfiles %}
+{% load repo_tags %}
+
+<div class="item">
+    <br />
+    <div class="header"><h5>最新文章</h5></div>
+    <div class="menu">
+        {% get_recent_posts as recent_post_list %}
+        {% for post in recent_post_list %}
+        <a class="item" href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        {% empty %}
+        暂无文章！
+        {% endfor %}
+    </div>
+</div>
+
+<div class="item">
+    <br />
+    <div class="header"><h5>归档</h5></div>
+    <div class="menu">
+        {% archives as date_list %}
+        {% for date in date_list %}
+          <a class="item" href="{% url 'repo:archives' date.year date.month %}">{{ date.year }} 年 {{ date.month }} 月</a>
+        {% empty %}
+        暂无归档！
+        {% endfor %}
+    </div>
+</div>
+
+<div class="item">
+    <br />
+    <div class="header"><h5>分类</h5></div>
+    <div class="menu">
+        {% get_categories as category_list %}
+        {% for category in category_list %}
+          <a class="item" href="{% url 'repo:category' category.pk %}">{{ category.name }}
+            <span class="post-count">({{ category.num_posts }})</span></a>
+        {% empty %}
+        暂无分类！
+        {% endfor %}
+    </div>
+</div>
+
+<div class="item">
+    <br />
+    <div class="header"><h5>标签云</h5></div>
+    <div class="menu">
+        {% get_tags as tag_list %}
+        {% for tag in tag_list %}
+          <a class="ui tiny inverted grey button" style="margin: 3px 2px; padding:8px 12px;" href="{% url 'repo:tag' tag.pk %}">{{ tag.name }}</a>
+        {% empty %}
+        暂无分类！
+        {% endfor %}
+    </div>
+</div>

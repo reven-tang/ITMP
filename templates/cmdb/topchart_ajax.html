@@ -1,0 +1,114 @@
+{% include 'cmdb/header.html' %}
+<body>
+<!-- 顶部菜单 -->
+<body style="height: 100%; margin: 0">
+{% include 'cmdb/menu.html' %}
+<!-- 左侧导航 -->
+<div class="ui celled grid" style="margin: 0px; height: 100%;">
+  <div class="row">
+	<div class="two wide column" style="background: #152733; height: 100%;">
+      	{% include 'cmdb/leftside.html' %}
+	</div>
+
+    <div class="fourteen wide column" style="overflow: auto;">
+		<div id="container" style="height: 100%"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+function loadToplogyChart() {
+	// 基于准备好的dom，初始化ECharts实例
+	var dom = document.getElementById("container");
+	var myChart = echarts.init(dom,'light');
+
+	var option = null;
+	// 指定图表的配置项和数据
+	option = {
+		color: ['#c23531', '#2f4554', '#61a0a8', '#d48265', '#91c7ae', '#749f83', '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
+	    title: {
+	        text: '业务拓扑图',
+	        subtext: '[通过鼠标滚动进行放大、缩小]',
+	        top: 'top',
+	        left: 'center'
+	    },
+	    tooltip: {},
+	    animationDurationUpdate: 1500,
+	    animationEasingUpdate: 'quinticInOut',
+	    series : [
+	        {
+	            type: 'graph',
+	            layout: 'none',
+	            symbolSize: 50,
+	            roam: true,
+	            label: {
+	                normal: {
+	                    show: true
+	                }
+	            },
+	            edgeSymbol: ['circle', 'arrow'],
+	            edgeSymbolSize: [4, 10],
+	            edgeLabel: {
+	                normal: {
+	                    textStyle: {
+	                        fontSize: 20
+	                    }
+	                }
+	            },
+				data: [],
+	            links: [],
+	            lineStyle: {
+	                normal: {
+	                	// color: 'source',
+	                    opacity: 0.9,
+	                    width: 2,
+	                    curveness: 0.1
+	                }
+	            },
+	            // 高亮样式。
+		        emphasis: {
+		            itemStyle: {
+		                // 高亮时点的颜色。
+		                color: 'orange'
+		            },
+		            label: {
+		                show: false,
+		                // 高亮时标签的文字。
+		                formatter: '节点'
+		            }
+		        }
+	        }
+	    ]
+	};;
+
+	myChart.showLoading();    //数据加载完之前先显示一段简单的loading动画
+	var data = [];
+    var links = [];
+
+    $.ajax({
+        type: 'get',
+        url: 'jsondata',//请求数据的地址
+        dataType: "json",        //返回数据形式为json
+        success: function (json) {
+        	result = eval(json)
+        	option.series[0].data = json.data;
+        	option.series[0].links = json.link;
+
+            myChart.hideLoading();    //隐藏加载动画
+			// if (option && typeof option === "object") {
+			// 	// 使用刚指定的配置项和数据显示图表。
+			//     myChart.setOption(option, true);
+			// }
+            myChart.setOption(option, true);
+        },
+        error: function (errorMsg) {
+            //请求失败时执行该函数
+            alert("图表请求数据失败!");
+            myChart.hideLoading();
+        }
+    },10000); //每隔10秒 获取一次，重新生成值
+};
+loadToplogyChart();
+</script>
+
+</body>
+</html>

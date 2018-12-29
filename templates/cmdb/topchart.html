@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %} 
+<div class="sixteen wide column" style="overflow: auto;">
+    <div id="container" style="height: 100%;"></div>
+</div>
+{% endblock main %}
+
+{% block custom_script %} 
+<script type="text/javascript">
+function loadToplogyChart() {
+    // 基于准备好的dom，初始化ECharts实例
+    var dom = document.getElementById("container");
+    // var myChart = echarts.init(dom);
+    var myChart = echarts.init(dom,'dark');
+
+    var option = null;
+    // 指定图表的配置项和数据
+    option = {
+        // color: ['red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue', 'violet','purple', 'pink', 'brown', 'grey', 'black'],
+        title: {
+            text: '业务拓扑',
+            subtext: '[通过鼠标滚动进行放大、缩小]',
+            top: 'top',
+            left: 'center'
+        },
+        tooltip: {},
+        animationDurationUpdate: 15000,
+        animationEasingUpdate: 'quinticInOut',
+        label: {
+            normal: {
+                show: true,
+                textStyle: {
+                    fontSize: 16
+                },
+            }
+        },
+        legend: {
+            bottom: 10,
+            x: "center",
+            data: []
+        },
+        toolbox: {  //工具栏。内置有导出图片，数据视图，动态类型切换，数据区域缩放，重置五个工具
+            show: true,
+            orient: 'horizontal',
+            feature: {
+                saveAsImage: {
+                    show: true
+                },
+                restore: {
+                    show: true
+                },
+            }
+        },
+        series: [
+            {
+                name: '服务器',
+                type: 'graph',
+                layout: 'force',
+                symbolSize: 45,
+                focusNodeAdjacency: true,
+                roam: true,
+                categories: [],
+                label: {
+                    normal: {
+                        show: true, //是否显示文本标签
+                        position: 'bottom',
+                        textStyle: {
+                            fontSize: 10
+                        },
+                    }
+                },
+                force: {
+                    repulsion: 2000
+                },
+                edgeSymbol: ['pin', 'arrow'],
+                edgeSymbolSize: [1, 8],
+                edgeLabel: {
+                    normal: {
+                        show: true,
+                        textStyle: {
+                            fontSize: 18
+                        },
+                        formatter: "{c}"
+                    }
+                },
+                data: [],
+                links: [],
+                lineStyle: {
+                    normal: {
+                        // 线性渐变，前四个参数分别是 x0, y0, x2, y2, 范围从 0 - 1，相当于在图形包围盒中的百分比，如果 globalCoord 为 `true`，则该四个值是绝对的像素位置
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0, color: 'orange' // 0% 处的颜色
+                            }, {
+                                offset: 1, color: 'grey' // 100% 处的颜色
+                            }],
+                            globalCoord: false // 缺省为 false
+                        },
+                        opacity: 0.9, //图形透明度。支持从 0 到 1 的数字，为 0 时不绘制该图形
+                        width: 2,   //线宽
+                        curveness: 0.1,
+                        type: "solid", //线的类型,可选solid、dashed、dotted
+                    }
+                },
+                // 高亮样式。
+                emphasis: {
+                    itemStyle: {
+                        // 高亮时点的颜色。
+                        color: 'orange'
+                    },
+                    edgeLabel: {
+                        show: false,
+                        // 高亮时标签的文字。
+                        formatter: '连接'
+                    }
+                }
+            }
+        ]
+    };
+
+    myChart.showLoading();    //数据加载完之前先显示一段简单的loading动画
+    var data = [];
+    var links = [];
+
+    $.ajax({
+        type: 'get',
+        url: '/cmdb/jsondata',//请求数据的地址
+        dataType: "json",        //返回数据形式为json
+        success: function (json) {
+            result = eval(json)
+            option.legend.data = json.legendes;
+            option.series[0].categories = json.categories;
+            option.series[0].data = json.data;
+            option.series[0].links = json.links;
+
+            myChart.hideLoading();    //隐藏加载动画
+            // if (option && typeof option === "object") {
+            //  // 使用刚指定的配置项和数据显示图表。
+            //     myChart.setOption(option, true);
+            // }
+            myChart.setOption(option, true);
+        },
+        error: function (errorMsg) {
+            //请求失败时执行该函数
+            alert("图表请求数据失败!");
+            myChart.hideLoading();
+        }
+    },10000); //每隔10秒 获取一次，重新生成值
+
+    // 60秒后继续调用本函数,以达到实时请求数据，实时更新的效果
+    setTimeout(loadToplogyChart,60000);
+};
+loadToplogyChart();
+</script>
+{% endblock custom_script %}

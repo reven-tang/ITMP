@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load repo_tags %}
+
+{% block main %} 
+<div class="two wide column" style="background: #383d4b; height: 100%; overflow: auto;">
+    <div class="ui small vertical inverted menu" style="background: #383d4b; width: 100%; color: #f6f6f6; height: 100%;">
+        {% include 'repo/sidebar.html' %}
+    </div>
+</div>
+
+<div class="fourteen wide column" style="overflow: auto; padding: 15px 120px 15px 80px;">
+    <!-- 搜索框 -->
+    <div class="ui mini compact menu" style="width: 100%; height: 50px;">
+        <div class="menu">
+           <div class="item">文章列表<i class="large angle double right icon"></i></div>
+        </div>
+        <div class="right menu">
+            <div class="item">
+                <form method="get" action="{% url 'repo:search' %}">
+                    <div class="ui icon input">
+                        <input type="text" placeholder="搜索..." name="q">
+                        <i class="search icon"></i>
+                    </div>
+                    <button class="ui icon button" type="submit" style="display: none"></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 内容 -->
+    <div class="ui divided items">
+        {% if error_msg %}
+            <p style="color: red">{{ error_msg }}</p>
+        {% endif %}
+        {% for post in post_list %}
+        <div class="item">
+            <div class="ui small rounded image">
+                <img style="border: 1px dotted #cccccc;" src="{{ post.category.image.url }}">
+            </div>
+            <div class="content">
+                <a class="ui header" href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                <div class="meta">
+                  <a href="#">{{ post.category.name }}</a>
+                  <a href="#">{{ post.created_time }}</a>
+                  <a href="#">{{ post.author }}</a>
+                </div>
+                <!-- <a href="{{ post.get_absolute_url }}" class="ui right ribbon label">更多</a> -->
+                <div class="description">
+                    <!-- <p>{{ post.excerpt }}</p> -->
+                    <p>{{ post.body | truncatechars:260 }}</p>
+                </div>
+                <div class="ui right floated mini basic button"><a href="{{ post.get_absolute_url }}">More...</a></div>
+<!--                 <div class="extra">
+                    <div class="ui floated mini basic button"><a href="{{ post.get_absolute_url }}">继续阅读<i class="right chevron icon"></i></a> </div>           
+                </div> -->
+            </div>
+        </div>
+        {% empty %}
+          暂时还没有发布的文章！
+        {% endfor %}
+    </div>
+
+    <!-- 分页 -->
+<!--     ListView 传递了以下和分页有关的模板变量供我们在模板中使用：
+        paginator ，即 Paginator 的实例。
+        page_obj ，当前请求页面分页对象。
+        is_paginated，是否已分页。只有当分页后页面超过两页时才算已分页。
+        object_list，请求页面的对象列表，和 post_list 等价。所以在模板中循环文章列表时可以选 post_list ，也可以选 object_list。 -->
+    <div class="ui compact menu" style="width: 100%; padding: 5px; height: 50px;">
+        <div class="right menu">
+            {% if is_paginated %}
+                <a class="icon item" href="?page=1"">
+                  <i class="step backward icon"></i>
+                </a>
+                <!-- 如果当前页还有上一页，显示一个上一页的按钮 -->
+                {% if page_obj.has_previous %}
+                <a class="item" href="?page={{ page_obj.previous_page_number }}"><i class="left chevron icon"></i></a>
+                {% endif %}
+                <!-- 显示当前页面信息 -->
+                <div class="item">第 {{ page_obj.number }} 页 / 共 {{ paginator.num_pages }} 页</div>
+                <!-- 如果当前页还有下一页，显示一个下一页的按钮 -->
+                {% if page_obj.has_next %}
+                <a class="item" href="?page={{ page_obj.next_page_number }}"><i class="right chevron icon"></i></a>
+                {% endif %}
+                <a class="icon item" href="?page={{ paginator.num_pages }}">
+                  <i class="step forward icon"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock main %}

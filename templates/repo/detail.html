@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load repo_tags %}
+
+{% block custom_css %}
+<!-- <link href="{% static 'css/highlights/pygments.css' %}" rel="stylesheet" type="text/css"> -->
+<link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/monokai-sublime.min.css" rel="stylesheet">
+<link href="{% static 'css/highlights_custom.css' %}" rel="stylesheet" type="text/css">
+{% endblock custom_css %}
+
+{% block custom_js %} 
+<!-- <script src="{% static "js/highlight.pack.js" %}"></script> -->
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/awk.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/diff.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/django.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/dos.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/go.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/vim.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/yaml.min.js"></script>
+
+<!-- <script>hljs.initHighlightingOnLoad();</script> -->
+<script type="text/javascript">
+    $(document).ready(function() {
+      $('div pre').each(function(i, block) {
+        // 行号的实现原理：html 的代码块都是通过 <code></code> 进行封装，我们可以将其内容取出封装到 <ol><li></li></ol> 从而实现设置行号的效果。
+        $(this).html("<ol><li>" + $(this).html().replace(/\n/g,"\n</li><li>") +"\n</li></ol>");
+        hljs.highlightBlock(block);
+      });
+    });
+</script>
+
+{% endblock custom_js %}
+
+{% block main %} 
+<div class="two wide column" style="background: #383d4b; height: 100%;">
+    <div class="ui small vertical inverted menu" style="background: #383d4b; width: 100%;">
+        {% include 'repo/sidebar.html' %}
+    </div>
+</div>
+
+<div class="fourteen wide column" style="overflow: auto; padding: 15px 120px 15px 80px;">
+    <div class="ui very relaxed items">
+        <div class="item">
+            <div class="content">
+                <a class="ui header">{{ post.title }}</a>
+                <div class="meta">
+                  <a href="#">{{ post.category.name }}</a>
+                  <a href="#">{{ post.created_time }}</a>
+                  <a href="#">{{ post.author }}</a>
+                </div>
+                <div class="ui horizontal divider"><i class="content icon"></i></div>
+                <!-- 宽松版 -->
+                <!-- <pre><code>{{ post.body|safe }}</code></pre> -->
+                <!-- 紧凑版 -->
+                <div>{{ post.body|safe }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock main %}

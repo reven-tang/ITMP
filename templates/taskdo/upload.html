@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %} 
+<div class="ui modal">
+  <div class="header">
+    文件上传
+  </div>
+  <div class="ui text container" style="width: 70%; margin: 20px 5px;">
+      <form method="post" action="uploadfile/files" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="ui form">
+        <div class="inline field">
+          <label>请选择:</label>
+          <input name="imgFile" type="file">
+        </div>
+      </div>
+      <div class="ui right aligned container" style="padding: 20px;">
+        <button class="ui button" type="button" onclick="javascript:history.back();">返回</button>
+        <button class="ui secondary button" type="submit">提交</button>
+      </div>
+      </form>
+  </div>
+
+</div>
+{% endblock main %}
+
+{% block custom_script %} 
+<script type="text/javascript">
+    $('.ui.modal')
+        .modal({
+          blurring: true
+        })
+        .modal('show')
+    ;
+</script>
+{% endblock custom_script %}

@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %} 
+<div class="two wide column" style="background: #383d4b; height: 100%;">
+    <div class="ui small vertical inverted menu" style="background: #383d4b; width: 100%;">
+
+    </div>
+</div>
+
+<div class="fourteen wide column" style="overflow: auto;">
+    <!-- 搜索框 -->
+    <div class="ui mini compact menu" style="width: 100%; height: 50px;">
+        <div class="right menu">
+            <div class="item">
+                <form method="get" action="{% url 'hosts:search' %}">
+                    <div class="ui icon input">
+                        <input type="text" placeholder="关键字" name="text">
+                        <i class="search icon"></i>
+                    </div>
+                    <button class="ui icon button" type="submit" style="display: none"></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 节点信息 -->
+    <div style="overflow: auto; padding: 0.5% 0px; height: 87%;">
+        <table id="tableres" class="ui small compact single line striped sortable celled orange table">
+            <thead>
+              <tr>
+                <th>
+                  <div class="ui mini basic icon buttons">
+                    <!-- <button class="ui button" onclick="opcheckboxed('checkbox', 'checkall')"><i class="checkmark box icon"></i></button> -->
+                    <!-- <button onclick="opcheckboxed('checkbox', 'uncheckall')">取消全选</button> -->
+                    <button class="ui button" onclick="opcheckboxed('checkbox', 'reversecheck')"><i class="checkmark icon"></i></button>
+                  </div>
+                </th>
+                <th>编号</th>
+                <th style="display: none">ID</th>
+                <th>主机标示</th>
+                <th>主机IP信息</th>
+                <th>主机名称</th>
+                <th>操作系统版本</th>
+                <th>MAC地址</th>
+                <th>机器类型</th>
+                <th>宿主机的类型</th>
+                <th>SSH登陆用户</th>
+                <th>SSH登陆密码</th>
+                <th>SSH登陆端口</th>
+                <th>SSH登陆私钥</th>
+                <th>SSH私钥密钥</th>
+                <th>SSH登陆状态</th>
+                <th>SSH登陆类型</th>
+                <th>唯一设备ID</th>
+              </tr>
+            </thead>
+            <tbody class="tredit">
+              {% for line in page_data %}
+                <tr>
+                  <td>
+                    <input type="checkbox" name="checkbox" value="{{ line.id }}">
+                    <label></label>
+                  </td>
+                  <td style="display: none">{{ line.id }}</td>
+                  <td>{{forloop.counter}}</td>
+                  <td>{{ line.sn }}</td>
+                  <td>{{ line.ip }}</td>
+                  <td>{{ line.hostname }}</td>
+                  <td>{{ line.system_ver }}</td>
+                  <td>{{ line.mac_address }}</td>
+                  <td>{{ line.mathine_type }}</td>
+                  <td>{{ line.host_type }}</td>
+                  <td>{{ line.ssh_user }}</td>
+                  <td>{{ line.ssh_passwd }}</td>
+                  <td>{{ line.ssh_port }}</td>
+                  <td>{{ line.ssh_rsa }}</td>
+                  <td>{{ line.rsa_pass }}</td>
+
+                  {% if line.ssh_status == 1 %}
+                    <td><label style="color: teal;">登录成功</label></td>
+                  {% elif line.ssh_status == 0 %}
+                    <td><label style="color: darkorange;">登录失败</label></td>
+                  {% endif %}
+
+                  {% if line.ssh_type == 0 %}
+                    <td><label>ssh登陆</label></td>
+                  {% elif line.ssh_type == 1 %}
+                    <td><label>rsa登录</label></td>
+                  {% elif line.ssh_type == 2 %}
+                    <td><label>dsa登录</label></td>
+                  {% elif line.ssh_type == 3 %}
+                    <td><label>普通用户rsa登录</label></td>
+                  {% elif line.ssh_type == 4 %}
+                    <td><label>docker成功</label></td>
+                  {% elif line.ssh_type == 5 %}
+                    <td><label>docker无法登录</label></td>
+                  {% endif %}
+
+                  <td>{{ line.sn_key }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+<!--     ListView 传递了以下和分页有关的模板变量供我们在模板中使用：
+        paginator ，即 Paginator 的实例。
+        page_obj ，当前请求页面分页对象。
+        is_paginated，是否已分页。只有当分页后页面超过两页时才算已分页。
+        object_list，请求页面的对象列表，和 post_list 等价。所以在模板中循环文章列表时可以选 post_list ，也可以选 object_list。 -->
+    <div class="ui compact menu" style="width: 100%; padding: 5px; height: 50px;">
+        <div class="right menu">
+            {% if is_paginated %}
+                <a class="icon item" href="?page=1"">
+                  <i class="step backward icon"></i>
+                </a>
+                <!-- 如果当前页还有上一页，显示一个上一页的按钮 -->
+                {% if page_obj.has_previous %}
+                <a class="item" href="?page={{ page_obj.previous_page_number }}"><i class="left chevron icon"></i></a>
+                {% endif %}
+                <!-- 显示当前页面信息 -->
+                <div class="item">第 {{ page_obj.number }} 页 / 共 {{ paginator.num_pages }} 页</div>
+                <!-- 如果当前页还有下一页，显示一个下一页的按钮 -->
+                {% if page_obj.has_next %}
+                <a class="item" href="?page={{ page_obj.next_page_number }}"><i class="right chevron icon"></i></a>
+                {% endif %}
+                <a class="icon item" href="?page={{ paginator.num_pages }}">
+                  <i class="step forward icon"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock main %}
+
+
+{% block custom_script %}
+
+<!-- 复选框全选及反选 -->
+<script type="text/javascript">
+    function opcheckboxed(objName, type){
+      var objNameList=document.getElementsByName(objName);
+      if(null!=objNameList){
+        for(var i=0;i<objNameList.length;i++){
+          if(objNameList[i].checked==true)
+          {
+            if(type != 'checkall') {  // 非全选
+              objNameList[i].checked=false;
+            }
+
+          } else {
+            if(type != 'uncheckall') {  // 非取消全选
+              objNameList[i].checked=true;
+            }
+          }
+        }
+      }
+    }
+</script>
+
+<!-- 表格排序 -->
+<script type="text/javascript">
+/*
+  A simple, lightweight jQuery plugin for creating sortable tables.
+  https://github.com/kylefox/jquery-tablesort
+  Version 0.0.11
+*/
+
+(function($) {
+  $.tablesort = function ($table, settings) {
+    var self = this;
+    this.$table = $table;
+    this.$thead = this.$table.find('thead');
+    this.settings = $.extend({}, $.tablesort.defaults, settings);
+    this.$sortCells = this.$thead.length > 0 ? this.$thead.find('th:not(.no-sort)') : this.$table.find('th:not(.no-sort)');
+    this.$sortCells.on('click.tablesort', function() {
+      self.sort($(this));
+    });
+    this.index = null;
+    this.$th = null;
+    this.direction = null;
+  };
+
+  $.tablesort.prototype = {
+
+    sort: function(th, direction) {
+      var start = new Date(),
+        self = this,
+        table = this.$table,
+        rowsContainer = table.find('tbody').length > 0 ? table.find('tbody') : table,
+        rows = rowsContainer.find('tr').has('td, th'),
+        cells = rows.find(':nth-child(' + (th.index() + 1) + ')').filter('td, th'),
+        sortBy = th.data().sortBy,
+        sortedMap = [];
+
+      var unsortedValues = cells.map(function(idx, cell) {
+        if (sortBy)
+          return (typeof sortBy === 'function') ? sortBy($(th), $(cell), self) : sortBy;
+        return ($(this).data().sortValue != null ? $(this).data().sortValue : $(this).text());
+      });
+      if (unsortedValues.length === 0) return;
+
+      //click on a different column
+      if (this.index !== th.index()) {
+        this.direction = 'asc';
+        this.index = th.index();
+      }
+      else if (direction !== 'asc' && direction !== 'desc')
+        this.direction = this.direction === 'asc' ? 'desc' : 'asc';
+      else
+        this.direction = direction;
+
+      direction = this.direction == 'asc' ? 1 : -1;
+
+      self.$table.trigger('tablesort:start', [self]);
+      self.log("Sorting by " + this.index + ' ' + this.direction);
+
+      // Try to force a browser redraw
+      self.$table.css("display");
+      // Run sorting asynchronously on a timeout to force browser redraw after
+      // `tablesort:start` callback. Also avoids locking up the browser too much.
+      setTimeout(function() {
+        self.$sortCells.removeClass(self.settings.asc + ' ' + self.settings.desc);
+        for (var i = 0, length = unsortedValues.length; i < length; i++)
+        {
+          sortedMap.push({
+            index: i,
+            cell: cells[i],
+            row: rows[i],
+            value: unsortedValues[i]
+          });
+        }
+
+        sortedMap.sort(function(a, b) {
+          return self.settings.compare(a.value, b.value) * direction;
+        });
+
+        $.each(sortedMap, function(i, entry) {
+          rowsContainer.append(entry.row);
+        });
+
+        th.addClass(self.settings[self.direction]);
+
+        self.log('Sort finished in ' + ((new Date()).getTime() - start.getTime()) + 'ms');
+        self.$table.trigger('tablesort:complete', [self]);
+        //Try to force a browser redraw
+        self.$table.css("display");
+      }, unsortedValues.length > 2000 ? 200 : 10);
+    },
+
+    log: function(msg) {
+      if(($.tablesort.DEBUG || this.settings.debug) && console && console.log) {
+        console.log('[tablesort] ' + msg);
+      }
+    },
+
+    destroy: function() {
+      this.$sortCells.off('click.tablesort');
+      this.$table.data('tablesort', null);
+      return null;
+    }
+
+  };
+
+  $.tablesort.DEBUG = false;
+
+  $.tablesort.defaults = {
+    debug: $.tablesort.DEBUG,
+    asc: 'sorted ascending',
+    desc: 'sorted descending',
+    compare: function(a, b) {
+      if (a > b) {
+        return 1;
+      } else if (a < b) {
+        return -1;
+      } else {
+        return 0;
+      }
+    }
+  };
+
+  $.fn.tablesort = function(settings) {
+    var table, sortable, previous;
+    return this.each(function() {
+      table = $(this);
+      previous = table.data('tablesort');
+      if(previous) {
+        previous.destroy();
+      }
+      table.data('tablesort', new $.tablesort(table, settings));
+    });
+  };
+
+})(window.Zepto || window.jQuery);
+// 调用
+$('table').tablesort()
+</script>
+
+{% endblock custom_script %}

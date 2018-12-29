@@ -1,0 +1,9 @@
+.idea
+settings.py
+db.sqlite3
+mysite/__pycache__/
+venv
+logs
+uploads
+static/Resource.csv
+

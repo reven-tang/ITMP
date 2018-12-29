@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block custom_css %} 
+<style>
+    .errorlist {
+        color: red;
+    }
+</style>
+{% endblock custom_css %}
+
+{% block main %} 
+<div class="ui modal" style="width: 450px;">
+    <div class="header">
+      ITMP 管理平台
+    </div>
+    <div class="ui text container" style="margin: 20px; width: 60%;">
+        <form method="post" action="{% url 'login' %}" id='login'>
+            {% csrf_token %}
+            <div class="ui form">
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                    {{ field.label_tag }}     <!-- 控件的 label 标签 -->
+                    {{ field }}               <!-- 表单控件 -->
+                    {{ field.errors }}        <!-- 表单的错误（如果有的话）-->
+                    {% if field.help_text %}  <!-- 控件相关的帮助信息 -->
+                        <p>{{ field.help_text|safe }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="ui center aligned container" style="padding: 10px;">
+                <button class="ui fluid large teal submit button" id="devsubmit" type="submit">
+                  登陆
+                </button>
+                <input type="hidden" name="next" value="{{ next }}"/>
+            </div>
+        </form>
+
+        <div class="ui center aligned container">
+            新用户？<a href="{% url 'users:register' %}?next={{ request.path }}">去注册</a>
+        </div>
+    </div>
+</div>
+{% endblock main %}
+
+{% block custom_script %} 
+<script type="text/javascript">
+    $('.ui.modal')
+        .modal({
+          blurring: true
+        })
+        .modal('show')
+    ;
+</script>
+{% endblock custom_script %}
+

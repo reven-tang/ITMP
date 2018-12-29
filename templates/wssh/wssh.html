@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block custom_css %}
+<link href="{% static "css/xterm.min.css" %}" rel="stylesheet" type="text/css">
+<style>
+    body {
+        padding-bottom: 30px;
+    }
+
+    .terminal {
+        border: #000 solid 5px;
+            font-size: 14px;
+            color: #CCCCCC;
+            background: #383d4b;
+            width: 100%;
+            /*height: 100%;*/
+            box-shadow: rgba(0, 0, 0, 0.8) 2px 2px 20px;
+    }
+
+    .reverse-video {
+        color: #000;
+        background: #f0f0f0;
+    }
+</style>
+
+{% endblock custom_css %}
+
+{% block custom_js %}
+<script src="{% static "js/xterm.min.js" %}"></script>
+{% endblock custom_js %}
+
+{% block main %}
+
+<div class="two wide column" style="background: #383d4b; height: 100%;">
+    <div class="ui small vertical inverted menu" style="background: #383d4b; width: 100%;">
+
+    </div>
+</div>
+
+
+<div class="fourteen wide column" style="overflow: auto; padding: 30px 12% 10px 5%; background-color: #F1F1F1;\"">
+    <div class="ui top attached tabular menu">
+        <a class="active item" data-tab="first">WebSSH</a>
+        <!--<a class="item" data-tab="second">批量管理</a>-->
+    </div>
+    <div class="ui bottom attached active tab segment" data-tab="first">
+      <form id="form1" onsubmit="return false" action="##" method="post" style="padding: 30px 5%;">
+        {% csrf_token %}
+        <div class="ui form">
+          <div class="two fields">
+            <div class="inline field">
+              <label>节点</label>
+              <select multiple="" class="ui search dropdown" name="node" id="node">
+                <option value="">Select Node</option>
+                {% for host in hosts %}
+                <option value="{{ host.ip }}">{{ host.ip }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="inline field">
+            <div class="inline field">
+              <label>端口</label>
+              <input type="text" placeholder="port" name="port" value="22">
+            </div>
+            </div>
+          </div>
+
+            <br />
+
+          <div class="two fields">
+            <div class="inline field">
+              <label>用户</label>
+              <input type="text" placeholder="username" name="username">
+            </div>
+            <div class="inline field">
+            <div class="inline field">
+              <label>密码</label>
+              <input type="text" placeholder="password" name="password">
+            </div>
+            </div>
+        </div>
+
+            <br />
+        <!--<div class="ui error message"></div>-->
+        <div class="ui left aligned container" style="padding: 10px 0px;">
+          <button class="ui teal button" id="button1" type="submit" onclick="sshlogin()">
+            连接
+          </button>
+          <button class="ui orange button" id="button2" type="reset">
+            重置
+          </button>
+        </div>
+      </form>
+    </div>
+    <br />
+
+    <div id="terms"></div>
+</div>
+{% endblock main %}
+
+{% block custom_script %}
+<script type="text/javascript">
+    // 构造websocket实例， 开启客户端就会与服务器进行连接。
+    var socket = new WebSocket('ws://' + window.location.host + '/ws/');
+
+    // 实例对象的onopen属性，用于指定连接成功后的回调函数
+    function ws() {
+        var term = new Terminal();
+
+        if(arguments.length >= 4 && arguments[4] == 0){
+
+            data = '{"node":"' + arguments[0] + '","port":"' + arguments[1] + '","username":"' + arguments[2] + '","password":"' + arguments[3] + '"}';
+            console.log(data);
+            socket.send(data);  //实例对象的send()方法用于向服务器发送数据
+            arguments[4] = 1;
+        }
+
+        term.open(document.getElementById('terms'));
+        term.on('data', function (data) {
+            console.log(data);
+            socket.send(data);  //实例对象的send()方法用于向服务器发送数据
+        });
+
+        // 实例对象的onmessage属性，用于指定收到服务器数据后的回调函数
+        socket.onmessage = function (msg) {
+            console.log(msg);
+            console.log(msg.data);
+            term.write(msg.data);   //write()方法用于从服务器返回数据到终端
+        };
+
+        // 实例对象的onerror属性，用于指定报错时的回调函数
+        socket.onerror = function (e) {
+            console.log(e);
+        };
+
+        // 实例对象的onclose属性，用于指定连接关闭后的回调函数
+        socket.onclose = function (e) {
+            console.log(e);
+            term.destroy();
+        };
+    };
+
+    function sshlogin() {
+        $.ajax({
+            type: "post",   //方法类型
+            url: "/wssh/terminal",  //url
+            data: $('#form1').serialize(),
+            dataType: "json",   //预期服务器返回的数据类型
+            success: function (json) {
+                // result = eval(json)
+                console.log(json);//打印服务端返回的数据(调试用)
+                node = json.node;
+                port = json.port;
+                username = json.username;
+                password = json.password;
+                conn = 0;
+
+                // 实例对象的onopen属性，用于指定连接成功后的回调函数
+                socket.onopen = ws(node,port,username,password,conn);
+            },
+            error : function() {
+                alert("ERROR: 信息填写错误，请重新填写！");
+            }
+        });
+    }
+
+    $('.menu .item')
+        .tab()
+    ;
+
+    // 允许多选,自定义输入
+    $('select.dropdown')
+        .dropdown({
+            allowAdditions: true
+    });
+</script>
+{% endblock custom_script %}

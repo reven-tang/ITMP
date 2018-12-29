@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block custom_css %}
+<link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/github-gist.min.css" rel="stylesheet">
+<!--<link href="{% static 'css/highlights_custom.css' %}" rel="stylesheet" type="text/css">-->
+<style>
+    pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+    .string { color: orangered; }
+    .number { color: darkorange; }
+    .boolean { color: dodgerblue; }
+    .null { color: magenta; }
+    .key { color: green; }
+
+    .hljs ol li {
+        list-style: decimal-leading-zero;
+        border-left: 1px solid #CCC !important;
+        padding: 5px!important;
+        margin: 0 !important;
+        white-space: pre;
+    }
+</style>
+{% endblock custom_css %}
+
+{% block custom_js %}
+ <!--<script src="{% static "js/json2.js" %}"></script>-->
+<!--<script src="https://cdn.bootcss.com/json2/20160511/json2.js"></script>-->
+<script src="https://cdn.bootcss.com/json2/20160511/json2.min.js"></script>
+<!-- <script src="{% static "js/highlight.pack.js" %}"></script> -->
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/awk.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/vim.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/yaml.min.js"></script>
+
+<!-- <script>hljs.initHighlightingOnLoad();</script> -->
+<script type="text/javascript">
+    $(document).ready(function() {
+      $('div pre').each(function(i, block) {
+        // 行号的实现原理：html 的代码块都是通过 <code></code> 进行封装，我们可以将其内容取出封装到 <ol><li></li></ol> 从而实现设置行号的效果。
+        $(this).html("<ol><li>" + $(this).html().replace(/\n/g,"\n</li><li>") +"\n</li></ol>");
+        hljs.highlightBlock(block);
+      });
+    });
+</script>
+{% endblock custom_js %}
+
+{% block main %}
+<div class="two wide column" style="background: #383d4b; height: 100%; overflow: auto;">
+    <div class="ui small vertical inverted menu" style="background: #383d4b; width: 100%; color: #f6f6f6; height: 100%;">
+        {% include 'taskdo/sidebar.html' %}
+    </div>
+</div>
+
+<div class="fourteen wide column" style="overflow: auto; padding: 20px 3%;">
+    <div class="ui divided items">
+        <!--<textarea id = "exec_result" rows="30" style="width: 100%;">-->
+        <!--</textarea>-->
+        <pre id="result"></pre>
+    </div>
+
+    <div class="ui compact menu" style="width: 100%; padding: 5px 20px; height: 50px;">
+        <div class="right menu">
+            <button class="ui teal submit button" type="button" onclick="javascript:history.back();">
+                返回
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock main %}
+
+{% block custom_script %}
+<script type="text/javascript">
+  var jsonObj = {{ data|safe }};
+  // $("#exec_result").val(JSON.stringify(jsonObj, null, 4)); //jsonObj是要JSON化的对象，4是spacing
+  function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+        json = JSON.stringify(json, undefined, 4);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+  }
+  $('#result').html(syntaxHighlight(jsonObj));
+</script>
+{% endblock custom_script %}

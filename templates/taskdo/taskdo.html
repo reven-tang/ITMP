@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %} 
+<div class="two wide column" style="background: #383d4b; height: 100%; overflow: auto;">
+  {% include 'taskdo/sidebar.html' %}
+</div>
+
+<div class="fourteen wide column" style="overflow: auto; padding: 30px 12% 10px 5%; background-color: #F1F1F1;">
+    <div class="ui top attached tabular menu">
+        <a class="active item" data-tab="first">远程命令</a>
+        <!--<a class="item" data-tab="second">批量管理</a>-->
+    </div>
+    <div class="ui bottom attached active tab segment" data-tab="first">
+      <form action="adhoc" method="post" name="Form1" id="From1">
+        {% csrf_token %}
+        <div class="ui form">
+          <div class="inline field">
+            <label>名称</label>
+            <input id="taskn" type="text" name="taskname" placeholder="任务名称" style="width: 40%;">
+          </div>
+
+          <div class="inline fields">
+            <div class="inline field">
+              <label>节点</label>
+              <select multiple="" class="ui search dropdown" name="node" id="node">
+                <option value="">Select Node</option>
+                {% for host in hosts %}
+                <option value="{{ host.ip }}">{{ host.ip }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="inline field">
+              <div class="ui basic button" id="qk">
+                清空
+              </div>
+            </div>
+          </div>
+
+          <div class="inline fields">
+            <div class="inline field">
+              <label>模块</label>
+              <select class="ui search dropdown" name="module">
+                <option value="">Select Module</option>
+                <option value="command">command</option>
+                <option value="copy">copy</option>
+                <option value="cron">cron</option>
+                <option value="file">file</option>
+                <option value="raw">raw</option>
+                <option value="unarchive">unarchive</option>
+                <option value="script">script</option>
+                <option value="setup">setup</option>
+                <option value="service">service</option>
+                <option value="shell">shell</option>
+                <option value="synchronize">synchronize</option>
+                <option value="win_command">win_command</option>
+              </select>
+            </div>
+            <div class="inline field">
+              <label>用户</label>
+              <input type="text" placeholder="root" name="user">
+            </div>
+            <div class="inline field">
+              <label>密码</label>
+              <input type="text" placeholder="password" name="pass">
+            </div>
+            <div class="inline field">
+              <label>端口</label>
+              <input type="text" placeholder="port" name="port">
+            </div>
+          </div>
+          <div class="inline fields">
+            <label for="fruit">脚本类型</label>
+            <div class="field">
+              <div class="ui radio checkbox">
+                <input type="radio" name="script_type" checked="" tabindex="0" class="hidden" value="0">
+                <label>shell</label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui radio checkbox">
+                <input type="radio" name="script_type" tabindex="0" class="hidden" value="1">
+                <label>powershell</label>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>执行命令</label>
+            <textarea name="exec_bash" rows="20" placeholder="Command" style="background-color: #383d4b; color: #CCCCCC;"></textarea>
+          </div>
+        </div>
+        <!--<div class="ui error message"></div>-->
+        <div class="ui right aligned container" style="padding: 10px 0px;">
+          <button class="ui teal button" id="button1" type="submit">
+            执行
+          </button>
+          <button class="ui orange button" id="button2" type="submit">
+            查看执行结果
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!--<div class="ui bottom attached tab segment" data-tab="second">-->
+
+    <!--</div>-->
+
+</div>
+{% endblock main %}
+
+
+{% block custom_script %}
+<!--表单提交-->
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#button1").click(function(){
+      $('form#From1').attr({action: "adhoc"});
+      $('form#From1').submit();
+    });
+    $("#button2").click(function(){
+      $('form#From1').attr({action: "exec_result"});
+      $('form#From1').submit();
+    });
+  });
+</script>
+
+<script type="text/javascript">
+  $('.menu .item')
+    .tab()
+  ;
+
+  // 允许多选,自定义输入
+  $('select.dropdown')
+    .dropdown({
+      allowAdditions: true
+    })
+  ;
+
+  // 清除选项
+  $('#qk')
+    .on('click', function() {
+      $('#node')
+        .dropdown('clear')
+      ;
+    })
+  ;
+
+  $('.ui.radio.checkbox')
+    .checkbox()
+  ;
+</script>
+{% endblock custom_script %}

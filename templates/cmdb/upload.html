@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %} 
+<div class="ui modal">
+  <div class="header">
+    资源导入
+  </div>
+  <div class="ui text container" style="width: 70%; margin: 20px 5px;">
+      <form method="post" action="uploadfile" enctype="multipart/form-data" class="pageForm required-validate" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+      {% csrf_token %}
+      {% load staticfiles %}
+      <div class="ui form">
+        <div class="inline field">
+          <label>请下载文件模板:</label>
+          <a href="{% static "Resource.csv" %}" target="dwzExport" ><span><i class="download icon"></i>文件模板</span></a>
+        </div>
+        <div class="inline field">
+          <label>请选择上传文件:</label>
+          <input name="file" type="file">
+        </div>
+      </div>
+      <div class="ui right aligned container" style="padding: 20px;">
+        <button class="ui button" type="button" onclick="javascript:history.back();">返回</button>
+        <button class="ui secondary button" type="submit">提交</button>
+      </div>
+      </form>
+  </div>
+
+</div>
+{% endblock main %}
+
+{% block custom_script %} 
+<script type="text/javascript">
+    $('.ui.modal')
+        .modal({
+          blurring: true
+        })
+        .modal('show')
+    ;
+</script>
+{% endblock custom_script %}

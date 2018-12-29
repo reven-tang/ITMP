@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %}
+<div class="two wide column" style="background: #383d4b; height: 100%;">
+    <div class="ui small vertical inverted menu" style="background: #383d4b; width: 100%;">
+
+    </div>
+</div>
+
+<div class="fourteen wide column" style="overflow: auto; padding: 25px 120px 15px 80px;">
+    <!-- 搜索框 -->
+    <div class="ui mini form compact right menu" style="width: 100%; height: 45px; padding: 5px 20px;">
+        <div class="right menu">
+            <form id='form1' action="##" method="post" onsubmit="return false">
+            {% csrf_token %}
+                <div class="inline fields">
+                    <label> 服务器: </label>
+                    <select multiple="" class="ui search dropdown" name="ipaddr" id="ipaddr">
+                        <option value="">Select Node</option>
+                        {% for ip in ipaddr %}
+                        <option value="{{ ip }}">{{ ip }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="item"></div>
+                    <label> 性能指标: </label>
+                    <select multiple="" class="ui search dropdown" name="kpi" id="kpi">
+                        <option value="">Select Node</option>
+                        {% for kpiname in kpi %}
+                        <option value="{{ kpiname }}">{{ kpiname }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="item"></div>
+                    <button class="ui icon mini orange button" type="submit"  onclick="postChart()"> 查看 </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="container" style="height: 45%; padding: 30px 0px;"></div>
+</div>
+{% endblock main %}
+
+{% block custom_script %}
+<script type="text/javascript">
+  // 允许多选,自定义输入
+  $('select.dropdown')
+    .dropdown({
+      allowAdditions: false
+    })
+  ;
+</script>
+
+<script type="text/javascript">
+function loadChart() {
+    var option = null;
+    // 指定图表的配置项和数据
+    option = {
+        title: {
+            text: '服务器性能曲线'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross'
+            }
+        },
+        legend: {
+            data:[]
+        },
+        grid: {
+            left: '2%', //grid 组件离容器左侧的距离，默认10%
+            right: '4%',
+            bottom: '3%',
+            containLabel: true  //是否显示拖拽用的手柄（手柄能拖拽调整选中范围）
+        },
+        toolbox: {  //工具栏。内置有导出图片，数据视图，动态类型切换，数据区域缩放，重置五个工具
+            show: true,
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                dataView: {readOnly: false},
+                magicType: {type: ['line', 'bar']},
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        dataZoom: [     // 用于区域缩放
+            {
+                type: 'slider',  //滑动条型数据区域缩放
+                xAxisIndex: 0,
+                filterMode: 'empty',
+                start: 70,  //数据窗口的设置百分比
+                end: 100
+            },
+            {
+                type: 'slider',
+                yAxisIndex: 0,
+                filterMode: 'empty',
+                start: 0,
+                end: 100
+            },
+            {
+                type: 'inside',  //内置型数据区域缩放
+                xAxisIndex: 0,
+                filterMode: 'empty',
+                start: 70,
+                end: 100
+            },
+            {
+                type: 'inside',
+                yAxisIndex: 0,
+                filterMode: 'empty',
+                start: 0,
+                end: 100
+            }
+        ],
+        xAxis: {
+            type: 'category',   //category类目轴，适用于离散的类目数据
+            data: []
+        },
+        yAxis: {
+            type: 'value',  //value数值轴，适用于连续数据
+            max: 100,
+            axisLabel: {
+                formatter: '{value} %'
+            }
+        },
+        series: []
+    };
+
+    // 基于准备好的dom，初始化ECharts实例
+    var dom = document.getElementById("container");
+    // var myChart = echarts.init(dom);
+    var myChart = echarts.init(dom,'light');
+
+    myChart.showLoading();    //数据加载完之前先显示一段简单的loading动画
+
+    $.ajax({
+        type: 'get',
+        url: '/chart/jsondata',//请求数据的地址
+        dataType: "json",        //返回数据形式为json
+        success: function (json) {
+            option.xAxis.data = json.x;
+
+            var legends=[];
+            var series=[];
+            // option.series[0].data = json.cpuData;
+            series.push({
+                    name:'CpuUtilization',
+                    type:'line',
+                    stack: '%',
+                    smooth: true,
+                    data:json.cpuData
+                },)
+            legends.push('CpuUtilization',)
+
+            // option.series[1].data = json.memData;
+            series.push({
+                    name:'MemUtilization',
+                    type:'line',
+                    stack: '%',
+                    smooth: true,
+                    data:json.memData
+                },)
+            legends.push('MemUtilization',)
+
+            var num=json.diskNum;
+            for(i=0;i<num;i++){
+                var diskDatai=json.diskData[i];
+                var keys=Object.keys(diskDatai);
+                var key=keys[0];
+
+                legends.push(key,)
+
+                series.push({
+                    name:key,
+                    type:'line',
+                    stack: '%',
+                    smooth: true,
+                    data:json.diskData[i][key]
+                },)
+            }
+
+            option.legend.data = legends;
+            option.series = series;
+
+            myChart.hideLoading();    //隐藏加载动画
+            // if (option && typeof option === "object") {
+            //  // 使用刚指定的配置项和数据显示图表。
+            //     myChart.setOption(option, true);
+            // }
+            myChart.setOption(option, true);
+        },
+        error: function (errorMsg) {
+            //请求失败时执行该函数
+            alert("图表请求数据失败!");
+            myChart.hideLoading();
+        }
+    },10000); //每隔10秒 获取一次，重新生成值
+
+    // 60秒后继续调用本函数,以达到实时请求数据，实时更新的效果
+    setTimeout(loadChart,60000);
+};
+loadChart();
+
+function postChart() {
+    var option = null;
+    // 指定图表的配置项和数据
+    option = {
+        title: {
+            text: '服务器性能曲线'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross'
+            }
+        },
+        legend: {
+            data:[]
+        },
+        grid: {
+            left: '2%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {  //工具栏。内置有导出图片，数据视图，动态类型切换，数据区域缩放，重置五个工具
+            show: true,
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                dataView: {readOnly: false},
+                magicType: {type: ['line', 'bar']},
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        dataZoom: [     // 用于区域缩放
+            {
+                type: 'slider',  //滑动条型数据区域缩放
+                xAxisIndex: 0,
+                filterMode: 'empty',
+                start: 70,  //数据窗口的设置百分比
+                end: 100
+            },
+            {
+                type: 'slider',
+                yAxisIndex: 0,
+                filterMode: 'empty',
+                start: 0,
+                end: 100
+            },
+            {
+                type: 'inside',  //内置型数据区域缩放
+                xAxisIndex: 0,
+                filterMode: 'empty',
+                start: 70,
+                end: 100
+            },
+            {
+                type: 'inside',
+                yAxisIndex: 0,
+                filterMode: 'empty',
+                start: 0,
+                end: 100
+            }
+        ],
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value',
+            // max: 100,
+            axisLabel: {
+                formatter: '{value}'
+            }
+        },
+        series: []
+    };
+
+    // 基于准备好的dom，初始化ECharts实例
+    var dom = document.getElementById("container");
+    // var myChart = echarts.init(dom);
+    var myChart = echarts.init(dom,'light');
+
+    myChart.showLoading();    //数据加载完之前先显示一段简单的loading动画
+
+    $.ajax({
+        type: 'post',
+        url: '/chart/jsondata',//请求数据的地址
+        data: $('#form1').serialize(),
+        dataType: "json",        //返回数据形式为json
+        success: function (json) {
+            option.xAxis.data = json.x;
+
+            var legends = [];
+            var series = [];
+
+            series.push({
+                name: json.kpiname,
+                type: 'line',
+                stack: '%',
+                smooth: true,
+                data: json.y
+            },)
+            legends.push(json.kpiname,)
+
+            option.legend.data = legends;
+            option.series = series;
+
+            myChart.hideLoading();    //隐藏加载动画
+            // if (option && typeof option === "object") {
+            //  // 使用刚指定的配置项和数据显示图表。
+            //     myChart.setOption(option, true);
+            // }
+            myChart.setOption(option, true);
+        },
+        error: function (errorMsg) {
+            //请求失败时执行该函数
+            alert("图表请求数据失败!");
+            myChart.hideLoading();
+        }
+    },10000);
+
+    // 60秒后继续调用本函数,以达到实时请求数据，实时更新的效果
+    setTimeout(postChart, 60000);
+};
+</script>
+{% endblock custom_script %}

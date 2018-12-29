@@ -1,0 +1,88 @@
+{% include 'cmdb/header.html' %}
+<body>
+<!-- 顶部菜单 -->
+<body style="height: 100%; margin: 0">
+{% include 'cmdb/menu.html' %}
+
+<div id="container" style="height: 100%">
+	<div id="dataid" d="{{ dataList }}" style="display:none"></div>
+	<div id="linkid" d="{{ linkList }}" style="display:none"></div>
+</div>
+
+<script type="text/javascript">
+var datastr = document.getElementById("dataid").getAttribute("d");
+var linkstr = document.getElementById("linkid").getAttribute("d");
+var objdata = eval('(' + datastr + ')');
+var objlinks = eval('(' + linkstr + ')');
+
+// 基于准备好的dom，初始化ECharts实例
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+
+var option = null;
+// 指定图表的配置项和数据
+option = {
+    title: {
+        text: '业务拓扑图',
+        subtext: '[通过鼠标滚动进行放大、缩小]',
+        top: 'top',
+        left: 'center'
+    },
+    tooltip: {},
+    animationDurationUpdate: 1500,
+    animationEasingUpdate: 'quinticInOut',
+    series : [
+        {
+            type: 'graph',
+            layout: 'none',
+            symbolSize: 50,
+            roam: true,
+            label: {
+                normal: {
+                    show: true
+                }
+            },
+            edgeSymbol: ['circle', 'arrow'],
+            edgeSymbolSize: [4, 10],
+            edgeLabel: {
+                normal: {
+                    textStyle: {
+                        fontSize: 20
+                    }
+                }
+            },
+            data: [
+	            {name: '127.0.0.1', y: 455, x: 177},
+	            {name: '127.0.0.2', y: 219, x: 702},
+	            {name: '127.0.0.5', y: 148, x: 581}
+            ],
+            links: [
+	            {target: '127.0.0.2', source: '127.0.0.1'},
+	            {target: '127.0.0.2', source: '127.0.0.5'},
+	            {target: '127.0.0.1', source: '127.0.0.5'}
+            ],
+            lineStyle: {
+                normal: {
+                    opacity: 0.9,
+                    width: 2,
+                    curveness: 0
+                }
+            }
+        }
+    ]
+};;
+option.series[0].data = objdata;
+option.series[0].links = objlinks;
+// str=JSON.stringify(option); 
+// alert(str);
+// alert(typeof(option))
+
+if (option && typeof option === "object") {
+	// 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option, true);
+}
+	// }
+</script>
+
+</body>
+</html>

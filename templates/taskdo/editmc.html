@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %}
+<div class="ui modal">
+  <div class="header">
+    添加模块
+  </div>
+  <div class="ui text container" style="margin: 20px;">
+      <form action="editmc" method="post" name="Form2" id="From2">
+        {% csrf_token %}
+        <br />
+        <div class="ui form">
+            {{ mcform.as_p }}
+        </div>
+        <br />
+        <div class="ui right aligned container" style="padding: 10px 0px;">
+          <button class="ui button" type="button" onclick="javascript:history.back();">
+            返回
+          </button>
+          <button class="ui teal button" id="button4" type="submit">
+            提交
+          </button>
+        </div>
+      </form>
+</div>
+{% endblock main %}
+
+{% block custom_script %} 
+<script type="text/javascript">
+  $('.ui.modal')
+    .modal({
+      blurring: true
+    })
+    .modal('show')
+  ;
+</script>
+{% endblock custom_script %}

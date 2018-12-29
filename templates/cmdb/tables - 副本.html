@@ -1,0 +1,482 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load proj_tags %}
+
+{% block main %} 
+<div class="two wide column" style="background: #383d4b; height: 100%;">
+    <div class="ui small vertical inverted menu" style="background: #383d4b; width: 100%;">
+        {% include 'cmdb/sidebar_t.html' %}
+    </div>
+</div>
+
+<div class="fourteen wide column" style="overflow: auto;">
+    <!-- 搜索框 -->
+    <div class="ui mini compact menu" style="width: 100%; height: 50px;">
+        <div class="item">
+            <a class="item" href="resadd.html">
+                <button class="ui green basic button">
+                    <i class="plus icon"></i>
+                    新增
+                </button>
+            </a>
+            <div class="ui simple dropdown item">
+                <button class="ui orange basic button">
+                    <i class="minus icon"></i>
+                    批量删除
+                </button>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a class="item">
+                        <button class="ui basic button" onclick="delAllRes(1)">
+                          软件信息
+                        </button>
+                    </a>
+                    <a class="item">
+                        <button class="ui basic button" onclick="delAllRes(2)">
+                          关联信息
+                        </button>
+                    </a>
+                    <a class="item">
+                        <button class="ui basic button" onclick="delAllRes(3)">
+                          设备信息
+                        </button>
+                    </a>
+                    <a class="item">
+                        <button class="ui basic button" onclick="delAllRes(4)">
+                          项目/应用
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <a class="item" href="uploadfile">
+                <i class="upload icon"></i>
+                导入CSV文件
+            </a>
+            <a class="item" href="downloadfile">
+                <i class="download icon"></i>
+                导出CSV文件
+            </a>
+            <form class="item" method="get" action="{% url 'tables' %}">
+                <select class="ui search dropdown" name="rownum">
+                    <option value="20">每页显示20条</option>
+                    <option value="10">10</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                    <option value="800">800</option>
+                    <option value="1000">1000</option>
+                </select>
+                <button class="ui icon button" type="submit"><i class="arrow circle right orange icon"></i></button>
+            </form>
+        </div>
+        <div class="right menu">
+            <div class="item">
+                <form method="get" action="search">
+                    <div class="ui icon input">
+                        <input type="text" placeholder="应用|联系人|软件名|设备别名|IP地址" name="text">
+                        <button class="ui icon button" type="submit"><i class="search link orange icon"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 资源信息 -->
+    <div style="overflow: auto; padding: 10px 0px; height: 88%;">
+        <table id="tableres" class="ui small compact single line striped sortable celled orange table">
+            <thead>
+              <tr>
+                <th>
+                  <div class="ui mini basic icon buttons">
+                    <!-- <button class="ui button" onclick="opcheckboxed('checkbox', 'checkall')"><i class="checkmark box icon"></i></button> -->
+                    <!-- <button onclick="opcheckboxed('checkbox', 'uncheckall')">取消全选</button> -->
+                    <button class="ui button" onclick="opcheckboxed('checkbox', 'reversecheck')"><i class="checkmark icon"></i></button>
+                  </div>
+                </th>
+                <th>项目名称</th>
+                <th>应用系统</th>
+                <th>设备IP地址</th>
+                <th>设备名称</th>
+                <th>设备别名</th>
+                <th>操作系统</th>
+                <th>设备类型</th>
+                <th>设备状态</th>
+                <th>设备描述</th>
+                <th>软件名称</th>
+                <th>软件类型</th>
+                <th>软件端口</th>
+                <th>版本</th>
+                <th>路径</th>
+                <th>软件描述</th>
+                <th>上联设备</th>
+                <th>上联描述</th>
+                <th>下联设备</th>
+                <th>下联描述</th>
+                <th>项目描述</th>
+                <th>项目联系人姓名</th>
+                <th>项目联系人电话</th>
+                <th>项目联系人邮箱</th>
+                <th>应用联系人姓名</th>
+                <th>应用联系人电话</th>
+                <th>应用联系人邮箱</th>
+                <th>小组名称</th>
+                <th>CPU大小(GHz)</th>
+                <th>CPU核数</th>
+                <th>内存大小(GB)</th>
+                <th>磁盘容量(GB)</th>
+                <th>机房位置</th>
+                <th>修改</th>
+                <th>删除</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for line in page_data %}
+                <tr>
+                  <td>
+                    <input type="checkbox" name="checkbox" value="{{ line.pid }}_{{ line.devid }}_{{ line.sid }}_{{ line.rid }}">
+                    <label></label>
+                  </td>
+                  <td>{{ line.projname }}</td>
+                  <td>{{ line.appsystem }}</td>
+                  <td>{{ line.devip }}</td>
+                  <td>{{ line.devname }}</td>
+                  <td>{{ line.devnamealias }}</td>
+                  <td>{{ line.ostype }}</td>
+                  {% if line.devtype == 'PM' %}
+                    <td><label style="color: blue;">{{ line.get_devtype_display }}</label></td>
+                  {% elif line.devtype == 'VM' %}
+                    <td><label style="color: grey;">{{ line.get_devtype_display }}</label></td>
+                  {% elif line.devtype == 'Other' %}
+                    <td><label style="color: orange;">{{ line.get_devtype_display }}</label></td>
+                  {% endif %}
+
+                  {% if line.devstatus == 'Online' %}
+                    <td><label style="color: green;">{{ line.get_devstatus_display }}</label></td>
+                  {% elif line.devstatus == 'Offline' %}
+                    <td><label style="color: orange;">{{ line.get_devstatus_display }}</label></td>
+                  {% elif line.devstatus == 'Unknown' %}
+                    <td><label style="color: grey;">{{ line.get_devstatus_display }}</label></td>
+                  {% elif line.devstatus == 'Fault' %}
+                    <td><label style="color: red;">{{ line.get_devstatus_display }}</label></td>
+                  {% elif line.devstatus == 'Backup' %}
+                    <td><label style="color: blue;">{{ line.get_devstatus_display }}</label></td>
+                  {% endif %}
+                  <td>{{ line.devdesc }}</td>
+                  <td>{{ line.sname }}</td>
+                  <td>{{ line.stype }}</td>
+                  <td>{{ line.sport }}</td>
+                  <td>{{ line.sversion }}</td>
+                  <td>{{ line.spath }}</td>
+                  <td>{{ line.sdesc }}</td>
+                  <td>{{ line.upip }}</td>
+                  <td>{{ line.updesc }}</td>
+                  <td>{{ line.downip }}</td>
+                  <td>{{ line.downdesc }}</td>
+                  <td>{{ line.projdesc }}</td>
+                  <td>{{ line.projcontactname }}</td>
+                  <td>{{ line.projcontactphone }}</td>
+                  <td>{{ line.projcontactemail }}</td>
+                  <td>{{ line.appcontactname }}</td>
+                  <td>{{ line.appcontactphone }}</td>
+                  <td>{{ line.appcontactemail }}</td>
+                  <td>{{ line.groupname }}</td>
+                  <td>{{ line.cpusize }}</td>
+                  <td>{{ line.cpucorecount }}</td>
+                  <td>{{ line.memsize }}</td>
+                  <td>{{ line.disksize }}</td>
+                  <td>{{ line.location  }}</td>
+                  <td>
+                    <div class="item">
+                      <a class="item" href="resedit?id={{ line.pid }}_{{ line.devid }}_{{ line.sid }}_{{ line.rid }}"><i class="write icon"></i></a>
+                    </div>
+                  </td>
+                  <td>
+        <!--                   <div class="item">
+                      <a class="item"><i class="remove icon"></i></a>
+                    </div> -->
+                    <div class="ui simple dropdown item">
+                      <i class="remove icon"></i>
+                      <div class="menu">
+                        <a class="item" href="resdel?id={{ line.pid }}_{{ line.devid }}_{{ line.sid }}_{{ line.rid }}&deltype=1">软件</a>
+                        <a class="item" href="resdel?id={{ line.pid }}_{{ line.devid }}_{{ line.sid }}_{{ line.rid }}&deltype=2">关联</a>
+                        <a class="item" href="resdel?id={{ line.pid }}_{{ line.devid }}_{{ line.sid }}_{{ line.rid }}&deltype=3">设备</a>
+                        <a class="item" href="resdel?id={{ line.pid }}_{{ line.devid }}_{{ line.sid }}_{{ line.rid }}&deltype=4">项目</a>
+                      </div>
+                    </div>
+                  </td>
+              </tr>       
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="ui compact menu" style="width: 100%; padding: 5px;">
+        <div class="right menu">
+          {% if pid %}
+            <a class="icon item" href="?pid={{ pid }}&page=1">
+              <i class="step backward icon"></i>
+            </a>
+            {% if page_data.has_previous %}
+            <a class="item" href="?pid={{ pid }}&page={{ page_data.previous_page_number }}"><i class="left chevron icon"></i></a>
+            {% endif %}
+
+<!--             {% for num in page_data.paginator.page_range %}
+            <a class="item" href="?pid={{ pid }}&page={{ num }}">{{ num }}</a>
+            {% endfor %} -->
+            <div class="item">第 {{ page_data.number }} 页 / 共 {{ paginator.num_pages }} 页</div>
+
+            {% if page_data.has_next %}
+            <a class="item" href="?pid={{ pid }}&page={{ page_data.next_page_number }}"><i class="right chevron icon"></i></a>
+            {% endif %}
+            <a class="icon item" href="?pid={{ pid }}&page={{ page_data.paginator.num_pages }}">
+              <i class="step forward icon"></i>
+            </a>
+          {% elif text %}
+            <a class="icon item" href="?text={{ text }}&page=1">
+              <i class="step backward icon"></i>
+            </a>
+            {% if page_data.has_previous %}
+            <a class="item" href="?text={{ text }}&page={{ page_data.previous_page_number }}"><i class="left chevron icon"></i></a>
+            {% endif %}
+
+<!--             {% for num in page_data.paginator.page_range %}
+            <a class="item" href="?text={{ text }}&page={{ num }}">{{ num }}</a>
+            {% endfor %} -->
+            <div class="item">第 {{ page_data.number }} 页 / 共 {{ paginator.num_pages }} 页</div>
+
+            {% if page_data.has_next %}
+            <a class="item" href="?text={{ text }}&page={{ page_data.next_page_number }}"><i class="right chevron icon"></i></a>
+            {% endif %}
+            <a class="icon item" href="?text={{ text }}&page={{ page_data.paginator.num_pages }}">
+              <i class="step forward icon"></i>
+            </a>
+          {% elif rownum %}
+            <a class="icon item" href="?rownum={{ rownum }}&page=1">
+              <i class="step backward icon"></i>
+            </a>
+            {% if page_data.has_previous %}
+            <a class="item" href="?rownum={{ rownum }}&page={{ page_data.previous_page_number }}"><i class="left chevron icon"></i></a>
+            {% endif %}
+
+<!--             {% for num in page_data.paginator.page_range %}
+            <a class="item" href="?rownum={{ rownum }}&page={{ num }}">{{ num }}</a>
+            {% endfor %} -->
+            <div class="item">第 {{ page_data.number }} 页 / 共 {{ paginator.num_pages }} 页</div>
+
+            {% if page_data.has_next %}
+            <a class="item" href="?rownum={{ rownum }}&page={{ page_data.next_page_number }}"><i class="right chevron icon"></i></a>
+            {% endif %}
+            <a class="icon item" href="?rownum={{ rownum }}&page={{ page_data.paginator.num_pages }}">
+              <i class="step forward icon"></i>
+            </a>
+          {% else %}
+            <a class="icon item" href="?page=1">
+              <i class="step backward icon"></i>
+            </a>
+            {% if page_data.has_previous %}
+            <a class="item" href="?page={{ page_data.previous_page_number }}"><i class="left chevron icon"></i></a>
+            {% endif %}
+
+<!--             {% for num in page_data.paginator.page_range %}
+            <a class="item" href="?page={{ num }}">{{ num }}</a>
+            {% endfor %} -->
+            <div class="item">第 {{ page_data.number }} 页 / 共 {{ paginator.num_pages }} 页</div>
+
+            {% if page_data.has_next %}
+            <a class="item" href="?page={{ page_data.next_page_number }}"><i class="right chevron icon"></i></a>
+            {% endif %}
+            <a class="icon item" href="?page={{ page_data.paginator.num_pages }}">
+              <i class="step forward icon"></i>
+            </a>
+          {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock main %}
+
+
+{% block custom_script %} 
+<!-- 复选框全选及反选 -->
+<script type="text/javascript">
+    function opcheckboxed(objName, type){
+      var objNameList=document.getElementsByName(objName);
+      if(null!=objNameList){
+        for(var i=0;i<objNameList.length;i++){  
+          if(objNameList[i].checked==true)
+          {
+            if(type != 'checkall') {  // 非全选
+              objNameList[i].checked=false;
+            }
+            
+          } else {
+            if(type != 'uncheckall') {  // 非取消全选
+              objNameList[i].checked=true;
+            }
+          }
+        }  
+      }
+    }
+</script>
+
+<!-- 批量删除 -->
+<script type="text/javascript">
+    function delAllRes(deltype){
+        if(!confirm("确定要删除这些资产信息吗？")){
+            return ;
+        }
+        var cks=document.getElementsByName("checkbox");
+        var str="id=";
+        //拼接所有的资产信息id
+        for(var i=0;i<cks.length;i++){
+            if(cks[i].checked){
+                str+=cks[i].value.replace(/None/g,"0")+"@";
+            }
+        }
+        //去掉字符串末尾的‘&’
+        str=str.substring(0, str.length-1)
+        str=str+"&deltype="+deltype;
+        location.href="resdel?"+str;
+    }
+</script>
+
+<!-- 表格排序 -->
+<script type="text/javascript">
+/*
+  A simple, lightweight jQuery plugin for creating sortable tables.
+  https://github.com/kylefox/jquery-tablesort
+  Version 0.0.11
+*/
+
+(function($) {
+  $.tablesort = function ($table, settings) {
+    var self = this;
+    this.$table = $table;
+    this.$thead = this.$table.find('thead');
+    this.settings = $.extend({}, $.tablesort.defaults, settings);
+    this.$sortCells = this.$thead.length > 0 ? this.$thead.find('th:not(.no-sort)') : this.$table.find('th:not(.no-sort)');
+    this.$sortCells.on('click.tablesort', function() {
+      self.sort($(this));
+    });
+    this.index = null;
+    this.$th = null;
+    this.direction = null;
+  };
+
+  $.tablesort.prototype = {
+
+    sort: function(th, direction) {
+      var start = new Date(),
+        self = this,
+        table = this.$table,
+        rowsContainer = table.find('tbody').length > 0 ? table.find('tbody') : table,
+        rows = rowsContainer.find('tr').has('td, th'),
+        cells = rows.find(':nth-child(' + (th.index() + 1) + ')').filter('td, th'),
+        sortBy = th.data().sortBy,
+        sortedMap = [];
+
+      var unsortedValues = cells.map(function(idx, cell) {
+        if (sortBy)
+          return (typeof sortBy === 'function') ? sortBy($(th), $(cell), self) : sortBy;
+        return ($(this).data().sortValue != null ? $(this).data().sortValue : $(this).text());
+      });
+      if (unsortedValues.length === 0) return;
+
+      //click on a different column
+      if (this.index !== th.index()) {
+        this.direction = 'asc';
+        this.index = th.index();
+      }
+      else if (direction !== 'asc' && direction !== 'desc')
+        this.direction = this.direction === 'asc' ? 'desc' : 'asc';
+      else
+        this.direction = direction;
+
+      direction = this.direction == 'asc' ? 1 : -1;
+
+      self.$table.trigger('tablesort:start', [self]);
+      self.log("Sorting by " + this.index + ' ' + this.direction);
+
+      // Try to force a browser redraw
+      self.$table.css("display");
+      // Run sorting asynchronously on a timeout to force browser redraw after
+      // `tablesort:start` callback. Also avoids locking up the browser too much.
+      setTimeout(function() {
+        self.$sortCells.removeClass(self.settings.asc + ' ' + self.settings.desc);
+        for (var i = 0, length = unsortedValues.length; i < length; i++)
+        {
+          sortedMap.push({
+            index: i,
+            cell: cells[i],
+            row: rows[i],
+            value: unsortedValues[i]
+          });
+        }
+
+        sortedMap.sort(function(a, b) {
+          return self.settings.compare(a.value, b.value) * direction;
+        });
+
+        $.each(sortedMap, function(i, entry) {
+          rowsContainer.append(entry.row);
+        });
+
+        th.addClass(self.settings[self.direction]);
+
+        self.log('Sort finished in ' + ((new Date()).getTime() - start.getTime()) + 'ms');
+        self.$table.trigger('tablesort:complete', [self]);
+        //Try to force a browser redraw
+        self.$table.css("display");
+      }, unsortedValues.length > 2000 ? 200 : 10);
+    },
+
+    log: function(msg) {
+      if(($.tablesort.DEBUG || this.settings.debug) && console && console.log) {
+        console.log('[tablesort] ' + msg);
+      }
+    },
+
+    destroy: function() {
+      this.$sortCells.off('click.tablesort');
+      this.$table.data('tablesort', null);
+      return null;
+    }
+
+  };
+
+  $.tablesort.DEBUG = false;
+
+  $.tablesort.defaults = {
+    debug: $.tablesort.DEBUG,
+    asc: 'sorted ascending',
+    desc: 'sorted descending',
+    compare: function(a, b) {
+      if (a > b) {
+        return 1;
+      } else if (a < b) {
+        return -1;
+      } else {
+        return 0;
+      }
+    }
+  };
+
+  $.fn.tablesort = function(settings) {
+    var table, sortable, previous;
+    return this.each(function() {
+      table = $(this);
+      previous = table.data('tablesort');
+      if(previous) {
+        previous.destroy();
+      }
+      table.data('tablesort', new $.tablesort(table, settings));
+    });
+  };
+
+})(window.Zepto || window.jQuery);
+// 调用
+$('table').tablesort()
+</script>
+{% endblock custom_script %}

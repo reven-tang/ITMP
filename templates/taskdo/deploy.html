@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main %} 
+<div class="two wide column" style="background: #383d4b; height: 100%; overflow: auto;">
+  {% include 'taskdo/sidebar.html' %}
+</div>
+
+<div class="fourteen wide column" style="overflow: auto; padding: 30px 12% 10px 5%; background-color: #F1F1F1;">
+        <div class="ui top attached tabular menu">
+            <a class="active item" data-tab="first">模块部署</a>
+            <a class="item" data-tab="second">模块操作</a>
+        </div>
+
+        <div class="ui bottom attached active tab segment" data-tab="first">
+          <form action="playbook" method="post" name="Form1" id="From1">
+            {% csrf_token %}
+            <div class="ui form">
+              <br />
+              <div class="inline field">
+                <label>名称</label>
+                <input id="taskn" type="text" name="taskname" placeholder="任务名称" style="width: 40%;">
+              </div>
+              <br />
+              <div class="inline fields">
+                <div class="inline field">
+                  <label>节点</label>
+                  <select multiple="" class="ui search dropdown" name="node" id="node">
+                    <option value="">Select Node</option>
+                    {% for host in hosts %}
+                    <option value="{{ host.ip }}">{{ host.ip }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="inline field">
+                  <div class="ui basic button" id="qk">
+                    清空
+                  </div>
+                </div>
+              </div>
+              <br />
+              <div class="inline fields">
+                <div class="inline field">
+                  <label>模块</label>
+                  <select class="ui search dropdown" name="module">
+                    <option value="">Select Module</option>
+                    {% for item in modules %}
+                      <option value={{ item }}>{{ item }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="inline field">
+                  <label>用户</label>
+                  <input type="text" placeholder="root" name="user">
+                </div>
+                <div class="inline field">
+                  <label>密码</label>
+                  <input type="text" placeholder="password" name="pass">
+                </div>
+                <div class="inline field">
+                  <label>端口</label>
+                  <input type="text" placeholder="port" name="port">
+                </div>
+              </div>
+              <br />
+              <div class="inline fields">
+                  <label for="fruit">脚本类型</label>
+                  <div class="field">
+                    <div class="ui radio checkbox">
+                      <input type="radio" name="script_type" checked="" tabindex="0" class="hidden" value="0">
+                      <label>shell</label>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <div class="ui radio checkbox">
+                      <input type="radio" name="script_type" tabindex="0" class="hidden" value="1">
+                      <label>powershell</label>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <br />
+            <!--<div class="ui error message"></div>-->
+            <div class="ui right aligned container" style="padding: 10px 0px;">
+              <button class="ui teal button" id="button1" type="submit">
+                执行
+              </button>
+              <button class="ui orange button" id="button2" type="submit">
+                查看执行结果
+              </button>
+              <button class="ui grey button" id="button3" type="submit">
+                查看配置文件
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="ui bottom attached tab segment" data-tab="second">
+          <table class="ui small compact single line striped sortable celled orange table">
+              <thead>
+                <tr>
+                  <th class="one wide">编号</th>
+                  <th style="display: none">ID</th>
+                  <th>模块名称</th>
+                  <th>模块路径</th>
+                  <th colspan="2" class="two wide center aligned"><a class="item" href="addmc"><i class="plus green icon"></i>新增</a></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for line in mcdetail %}
+                  <tr>
+                    <td style="display: none">{{ line.id }}</td>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{ line.module_name }}</td>
+                    <td>{{ line.module_path }}</td>
+                    <td class="center aligned">
+                      <div class="item">
+                        <a class="item" href="editmc?id={{ line.id }}"><i class="edit blue icon"></i></a>
+                      </div>
+                    </td>
+                    <td class="center aligned">
+                      <div class="item">
+                        <a class="item" href="lookmc?id={{ line.id }}"><i class="print grey icon"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+        </div>
+
+</div>
+{% endblock main %}
+
+
+{% block custom_script %}
+<!--表单提交-->
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#button1").click(function(){
+      $('form#From1').attr({action: "playbook"});
+      $('form#From1').submit();
+    });
+    $("#button2").click(function(){
+      $('form#From1').attr({action: "exec_result"});
+      $('form#From1').submit();
+    });
+    $("#button3").click(function(){
+      $('form#From1').attr({action: "lookmc"});
+      $('form#From1').submit();
+    });
+  });
+</script>
+
+<script type="text/javascript">
+  $('.menu .item')
+    .tab()
+  ;
+
+  // 允许多选,自定义输入
+  $('select.dropdown')
+    .dropdown({
+      allowAdditions: true
+    })
+  ;
+
+  // 清除选项
+  $('#qk')
+    .on('click', function() {
+      $('#node')
+        .dropdown('clear')
+      ;
+    })
+  ;
+</script>
+{% endblock custom_script %}

@@ -1,0 +1,102 @@
+/*行号的实现原理：由于 <ol><li></li></ol> 默认行号效果不友好，我们进行样式设置.*/
+.hljs {
+    border: 0;
+    font-size: 12px;
+    display: block;
+    padding: 1px;
+    margin: 5px 0px 15px 0px;
+    width: 100%;
+    font-weight: 200;
+    white-space: pre-wrap;
+    background: #363940;
+}
+.hljs ol {
+    list-style: decimal;
+    margin: 0px 0px 0 40px !important;
+    padding: 0px;
+    background: #383D4B;
+}
+.hljs ol li {
+    list-style: decimal-leading-zero;
+    border-left: 1px solid #555 !important;
+    padding: 5px!important;
+    margin: 0 !important;
+    white-space: pre;
+    background: #383D4B;
+}
+/*目录*/
+p, blockquote, ul, ol, dl, li, table, pre {
+    margin: 5px 0;
+}
+
+pre {
+    background-color: #F8F8F8;
+    border: 1px solid #CCCCCC;
+    border-radius: 3px;
+    overflow: auto;
+    padding: 5px;
+}
+
+pre code {
+    background-color: #F8F8F8;
+    border: none;
+    padding: 0;
+}
+
+/*``代码块*/
+code {
+    font-family: Consolas, Monaco, Andale Mono, monospace;
+    color: #880000;
+    background-color:#F6F6F6;
+    border: 1px solid #DDDDDD;
+    border-radius: 3px;
+    padding: 0 0.2em;
+    line-height: 2;
+}
+
+pre > code {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+
+a:link{ color: #0366de; text-decoration:none;}   /* 未被访问的链接 */
+a:visited{ color: #0366de; }                /* 已被访问的链接 */
+a:hover{ color: #0366de; text-decoration:underline; }   /* 鼠标指针移动到链接上 */
+a:active{ color: #0366de; }                  /* 正在被点击的链接 */
+a:focus{ outline: thin dotted; }
+a:hover, a:active{ outline: 0; }
+
+::-moz-selection{background:rgba(255,255,0,0.3);color:#000}
+::selection{background:rgba(255,255,0,0.3);color:#000}
+
+a::-moz-selection{background:rgba(255,255,0,0.3);color:#0645ad}
+a::selection{background:rgba(255,255,0,0.3);color:#0645ad}
+
+/*注释块*/
+blockquote{
+    color:#666666;
+    font-style: italic;
+    margin:0;
+    padding: 1em 0em 1em 1.5em;
+    border-left: 0.5em #DDDDDD solid;
+    background-color: #F5F5F5;
+}
+
+ul, ol { margin: 1em 0; padding: 0 0 0 2em; list-style:none;}
+li p:last-child { margin:0;}
+dd { margin: 0 0 0 2em; }
+
+img { border: 0; -ms-interpolation-mode: bicubic; vertical-align: middle; max-width:100%;}
+
+table { border-collapse: collapse; border-spacing: 0; }
+td { vertical-align: top; }
+
+@media only screen and (min-width: 480px) {
+    body{font-size:12px;}
+}
+
+@media only screen and (min-width: 768px) {
+    body{font-size:14px;}
+}
