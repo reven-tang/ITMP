@@ -42,7 +42,7 @@ ITMP 管理平台
 
 1，克隆代码
 ```
-git clone https://github.com/reven-tang/Django_ITMP.git
+git clone https://github.com/reven-tang/ITMP.git
 ```
 
 2，修改 mysite/settings.py
@@ -136,51 +136,51 @@ celery -A mysite worker -l info  或  nohup celery -A mysite worker -l info >> l
 
 **登陆**
 
-![登陆](https://github.com/reven-tang/Django_ITMP/blob/master/photo/login.jpg "登陆")
+![登陆](https://github.com/reven-tang/ITMP/blob/master/photo/login.jpg "登陆")
 
 **资产**
 
-![资产](https://github.com/reven-tang/Django_ITMP/blob/master/photo/cmdb1.jpg "资产")
+![资产](https://github.com/reven-tang/ITMP/blob/master/photo/cmdb1.jpg "资产")
 
-![资产](https://github.com/reven-tang/Django_ITMP/blob/master/photo/cmdb2.jpg "资产")
+![资产](https://github.com/reven-tang/ITMP/blob/master/photo/cmdb2.jpg "资产")
 
 **业务拓扑**
 
-![拓扑](https://github.com/reven-tang/Django_ITMP/blob/master/photo/top.jpg "拓扑")
+![拓扑](https://github.com/reven-tang/ITMP/blob/master/photo/top.jpg "拓扑")
 
-![拓扑](https://github.com/reven-tang/Django_ITMP/blob/master/photo/top2.jpg "拓扑")
+![拓扑](https://github.com/reven-tang/ITMP/blob/master/photo/top2.jpg "拓扑")
 
 **主机**
 
-![主机](https://github.com/reven-tang/Django_ITMP/blob/master/photo/host.jpg "主机")
+![主机](https://github.com/reven-tang/ITMP/blob/master/photo/host.jpg "主机")
 
 **远程命令**
 
-![远程命令](https://github.com/reven-tang/Django_ITMP/blob/master/photo/task1.jpg "远程命令")
+![远程命令](https://github.com/reven-tang/ITMP/blob/master/photo/task1.jpg "远程命令")
 
 **模块配置及部署**
 
-![模块配置及部署](https://github.com/reven-tang/Django_ITMP/blob/master/photo/task2.jpg "模块配置及部署")
+![模块配置及部署](https://github.com/reven-tang/ITMP/blob/master/photo/task2.jpg "模块配置及部署")
 
-![模块配置及部署](https://github.com/reven-tang/Django_ITMP/blob/master/photo/task3.jpg "模块配置及部署")
+![模块配置及部署](https://github.com/reven-tang/ITMP/blob/master/photo/task3.jpg "模块配置及部署")
 
 **执行历史及日志审计**
 
-![执行历史](https://github.com/reven-tang/Django_ITMP/blob/master/photo/task4.jpg "执行历史")
+![执行历史](https://github.com/reven-tang/ITMP/blob/master/photo/task4.jpg "执行历史")
 
 **Web SSH**
 
-![Web SSH](https://github.com/reven-tang/Django_ITMP/blob/master/photo/webssh.jpg "Web SSH")
+![Web SSH](https://github.com/reven-tang/ITMP/blob/master/photo/webssh.jpg "Web SSH")
 
 **监控**
 
-![监控](https://github.com/reven-tang/Django_ITMP/blob/master/photo/api.jpg "监控")
+![监控](https://github.com/reven-tang/ITMP/blob/master/photo/api.jpg "监控")
 
-![监控](https://github.com/reven-tang/Django_ITMP/blob/master/photo/chart.jpg "监控")
+![监控](https://github.com/reven-tang/ITMP/blob/master/photo/chart.jpg "监控")
 
 **知识库**
 
-![知识库](https://github.com/reven-tang/Django_ITMP/blob/master/photo/zhishi.jpg "知识库")
+![知识库](https://github.com/reven-tang/ITMP/blob/master/photo/zhishi.jpg "知识库")
 
 ## 贡献者
 
