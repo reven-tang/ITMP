@@ -80,7 +80,7 @@ python-nmap==0.6.1
 pytz==2018.5
 pyvmomi==6.7.0.2018.9
 pywinrm==0.3.0
-PyYAML==3.13
+PyYAML==5.4
 redis==2.10.6
 requests==2.19.1
 requests-ntlm==1.1.0
