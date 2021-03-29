@@ -68,7 +68,7 @@ pyasn1==0.4.4
 pycparser==2.18
 pycrypto==2.6.1
 pycryptodomex==3.6.6
-Pygments==2.2.0
+Pygments==2.7.4
 PyHamcrest==1.9.0
 pyinstall==0.1.4
 PyInstaller==3.4
