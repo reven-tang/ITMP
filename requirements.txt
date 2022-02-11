@@ -89,7 +89,7 @@ simplegeneric==0.8.1
 six==1.11.0
 tornado==5.1.1
 traitlets==4.3.2
-Twisted==18.9.0
+Twisted==22.1.0
 txaio==18.8.1
 urllib3==1.23
 utils==0.9.0
